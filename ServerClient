@@ -1,0 +1,1464 @@
+—--------------------------------------------------------------Lab_1—---------------------------------------------
+1} Retrieve IP address
+package Lab1;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+public class IP_Address {
+public static void main(String[] args) throws UnknownHostException {
+InetAddress localhost=InetAddress.getLocalHost();
+System.out.println("System ip address:"+localhost.toString());
+System.out.println("System Name is:"+localhost.getHostName());
+}
+}
+2} Retrieve interfaces
+package Lab1;
+import java.net.*;
+import java.util.Enumeration;
+public class Network_Interfaces {
+public static void main(String[] args) {
+try {
+// Get all network interfaces
+Enumeration<NetworkInterface> networkInterfaces =
+NetworkInterface.getNetworkInterfaces();
+while (networkInterfaces.hasMoreElements()) {
+NetworkInterface networkInterface =
+networkInterfaces.nextElement();
+System.out.println("Interface Name: " +
+networkInterface.getName());
+System.out.println("Display Name: " +
+networkInterface.getDisplayName());
+// Get the IP addresses associated with this network interface
+Enumeration<InetAddress> inetAddresses =
+networkInterface.getInetAddresses();
+while (inetAddresses.hasMoreElements()) {
+InetAddress inetAddress = inetAddresses.nextElement();
+System.out.println(" IP Address: " +
+inetAddress.getHostAddress());
+}
+System.out.println("---------------------------------------");
+}
+} catch (SocketException e) {
+e.printStackTrace();
+}
+}
+}
+3} Host_name of IP
+package Lab1;
+import java.net.*;
+import java.util.*;
+public class Host_Name_IP
+{
+public static void main(String[] args){
+String host;
+Scanner input = new Scanner(System.in);
+System.out.print("\n Enter host name: ");
+host = input.nextLine();
+try {
+InetAddress address = InetAddress.getByName(host);
+System.out.println("IP address: " + address.getHostAddress());
+System.out.println("Host name : " + address.getHostName());
+System.out.println("Host name and IP address: " +
+address.toString());
+}
+catch (UnknownHostException ex) {
+System.out.println("Could not find " + host);
+}
+}
+}
+4}Bit Masking
+package Lab1;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Scanner;
+public class BitMasking {
+public static void main(String[] args) {
+Scanner scanner = new Scanner(System.in);
+System.out.print("Enter an IP address: ");
+String ipAddress = scanner.nextLine();
+try {
+InetAddress inetAddress = InetAddress.getByName(ipAddress);
+byte[] ipAddressBytes = inetAddress.getAddress();
+// Classify the IP address based on each octet
+char ipClass = classifyIPAddress(ipAddressBytes);
+System.out.println("IP Address: " + ipAddress);
+System.out.println("Class: " + ipClass);
+} catch (UnknownHostException e) {
+System.out.println("Invalid IP address");
+} finally {
+scanner.close();
+}
+}
+private static char classifyIPAddress(byte[] ipAddressBytes) {
+// Classify based on the first octet
+int firstOctet = ipAddressBytes[0] & 0xFF;
+if ((firstOctet & 0b10000000) == 0) {
+return 'A';
+} else if ((firstOctet & 0b11000000) == 0b10000000) {
+return 'B';
+} else if ((firstOctet & 0b11100000) == 0b11000000) {
+return 'C';
+} else if ((firstOctet & 0b11110000) == 0b11100000) {
+return 'D';
+} else {
+return 'E';
+}
+}
+}
+—--------------------------------------------------------------Lab_2—---------------------------------------------
+1}Extract Domain name and parse the url
+package Lab2;
+import java.net.*;
+import java.io.*;
+import java.util.Scanner;
+public class Domain_name_url {
+public static void main(String[] args) throws Exception {
+Scanner scanner = new Scanner(System.in);
+System.out.print("Enter URL: ");
+String urlString = scanner.nextLine();
+URL aURL = new URL(urlString);
+System.out.println("protocol = " + aURL.getProtocol());
+System.out.println("authority = " + aURL.getAuthority());
+System.out.println("host = " + aURL.getHost());
+System.out.println("port = " + aURL.getPort());
+System.out.println("path = " + aURL.getPath());
+System.out.println("query = " + aURL.getQuery());
+System.out.println("filename = " + aURL.getFile());
+System.out.println("ref = " + aURL.getRef());
+scanner.close();
+}
+}
+2}Source code of url
+package Lab2;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+public class Source_Code_Webpage {
+public static void main(String[] args) {
+try {
+// Get the URL from the user
+BufferedReader userInputReader = new BufferedReader(new
+InputStreamReader(System.in));
+System.out.print("Enter the URL of the webpage you want to read:
+");
+String urlString = userInputReader.readLine();
+// Specify the URL of the webpage
+URL url = new URL(urlString);
+// Open a connection to the URL
+URLConnection urlConnection = url.openConnection();
+// Create a BufferedReader to read the webpage content
+try (BufferedReader reader = new BufferedReader(new
+InputStreamReader(urlConnection.getInputStream()))) {
+String line;
+while ((line = reader.readLine()) != null) {
+System.out.println(line);
+}
+}
+} catch (IOException e) {
+if (e.getMessage().contains("Server returned HTTP response code:
+403")) {
+System.out.println("Error: Access Forbidden. Check your
+permissions or credentials.");
+} else {
+// Handle other IOExceptions
+e.printStackTrace();
+}
+}
+}
+}
+3} header information
+package Lab2;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.Map;
+import java.util.List;
+public class Header_Information_URL {
+public static void main(String[] args) {
+try {
+// Get the URL from the user
+java.util.Scanner scanner = new java.util.Scanner(System.in);
+System.out.print("Enter the URL: ");
+String urlString = scanner.nextLine();
+// Specify the URL
+URL url = new URL(urlString);
+// Open a connection to the URL
+URLConnection urlConnection = url.openConnection();
+// Get the header fields from the URL connection
+Map<String, List<String>> headers =
+urlConnection.getHeaderFields();
+// Print the header information
+for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+String key = entry.getKey();
+List<String> values = entry.getValue();
+if (key == null) {
+// The key is null for the status line, so print it
+separately
+System.out.println("Status Line: " + values.get(0));
+} else {
+System.out.println(key + ": " + String.join(", ",
+values));
+}
+}
+} catch (Exception e) {
+e.printStackTrace();
+}
+}
+}
+4}DNS Server
+package Lab2;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+class VisitedSite {
+private final String url;
+private final String ipAddress;
+private int visitCount;
+public VisitedSite(String url, String ipAddress) {
+this.url = url;
+this.ipAddress = ipAddress;
+this.visitCount = 1;
+}
+public String getUrl() {
+return url;
+}
+public String getIpAddress() {
+return ipAddress;
+}
+public int getVisitCount() {
+return visitCount;
+}
+public void incrementVisitCount() {
+visitCount++;
+}
+@Override
+public String toString() {
+return String.format("| %-30s | %-15s | %-12d |", url, ipAddress,
+visitCount);
+}
+}
+public class DNS_Server{
+private static final Scanner scanner = new Scanner(System.in);
+private static final DNS_Server visitedSitesDatabase = new DNS_Server();
+// Make visitedSites static
+private static final Map<String, VisitedSite> visitedSites = new
+HashMap<>();
+public static void main(String[] args) {
+while (true) {
+System.out.println("1. Update Visit Count");
+System.out.println("2. Retrieve Visit Count");
+System.out.println("3. Print Visited Sites Table");
+System.out.println("4. Exit");
+System.out.print("Enter your choice: ");
+int choice = scanner.nextInt();
+switch (choice) {
+case 1:
+updateVisitCount();
+break;
+case 2:
+retrieveVisitCount();
+break;
+case 3:
+printVisitedSitesTable();
+break;
+case 4:
+System.out.println("Exiting program.");
+System.exit(0);
+default:
+System.out.println("Invalid choice. Please try again.");
+}
+}
+}
+private static void updateVisitCount() {
+System.out.print("Enter URL: ");
+String url = scanner.next();
+System.out.print("Enter IP Address: ");
+String ipAddress = scanner.next();
+visitedSitesDatabase.updateVisitCount(url, ipAddress);
+System.out.println("Visit count updated successfully.");
+}
+private static void retrieveVisitCount() {
+System.out.print("Enter URL: ");
+String url = scanner.next();
+System.out.print("Enter IP Address: ");
+String ipAddress = scanner.next();
+int visitCount = visitedSitesDatabase.getVisitCount(url, ipAddress);
+System.out.println("Visit count for " + url + " with IP address " +
+ipAddress + ": " + visitCount);
+}
+private static void printVisitedSitesTable() {
+System.out.println("+--------------------------------+-----------------+-----
+----------+");
+System.out.println("| URL | IP Address
+| Visit Count |");
+System.out.println("+--------------------------------+-----------------+-----
+----------+");
+for (VisitedSite visitedSite : visitedSites.values()) {
+System.out.println(visitedSite);
+}
+System.out.println("+--------------------------------+-----------------+-----
+----------+");
+}
+private void updateVisitCount(String url, String ipAddress) {
+String key = getKey(url, ipAddress);
+VisitedSite visitedSite = visitedSites.get(key);
+if (visitedSite == null) {
+visitedSite = new VisitedSite(url, ipAddress);
+visitedSites.put(key, visitedSite);
+} else {
+visitedSite.incrementVisitCount();
+}
+}
+private int getVisitCount(String url, String ipAddress) {
+String key = getKey(url, ipAddress);
+VisitedSite visitedSite = visitedSites.get(key);
+return visitedSite != null ? visitedSite.getVisitCount() : 0;
+}
+private String getKey(String url, String ipAddress) {
+return url + "|" + ipAddress;
+}
+}
+—--------------------------------------------------------------Lab_3—---------------------------------------------
+1} C-S Uppercase
+Server:
+package Lab3;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+public class TCP_Server {
+public static void main(String[] args) {
+int portNumber = 5555;
+try (ServerSocket serverSocket = new ServerSocket(portNumber)) {
+System.out.println("Server listening on port " + portNumber);
+while (true) {
+try (
+Socket clientSocket = serverSocket.accept();
+PrintWriter out = new
+PrintWriter(clientSocket.getOutputStream(), true);
+BufferedReader in = new BufferedReader(new
+InputStreamReader(clientSocket.getInputStream()))
+) {
+String clientMessage = in.readLine();
+System.out.println("Received from client: " +
+clientMessage);
+String response = clientMessage.toUpperCase();
+out.println(response);
+}
+}
+} catch (IOException e) {
+e.printStackTrace();
+}
+}
+}
+Client:
+package Lab3;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+public class TCP_Client {
+public static void main(String[] args) {
+String serverAddress = "localhost";
+int portNumber = 5555;
+try (
+Socket socket = new Socket(serverAddress, portNumber);
+PrintWriter out = new PrintWriter(socket.getOutputStream(),
+true);
+BufferedReader in = new BufferedReader(new
+InputStreamReader(socket.getInputStream()));
+BufferedReader stdIn = new BufferedReader(new
+InputStreamReader(System.in))
+) {
+System.out.print("Enter text to be sent to the server: ");
+String userInput = stdIn.readLine();
+out.println(userInput);
+String serverResponse = in.readLine();
+System.out.println("Server response: " + serverResponse);
+} catch (IOException e) {
+e.printStackTrace();
+}
+}
+}
+2}C-S GCD of two number
+Server Code:
+package Lab3;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+public class TCP_2_Server {
+public static void main(String[] args) {
+int portNumber = 5556;
+try (ServerSocket serverSocket = new ServerSocket(portNumber)) {
+System.out.println("Server listening on port " + portNumber);
+while (true) {
+try (
+Socket clientSocket = serverSocket.accept();
+PrintWriter out = new
+PrintWriter(clientSocket.getOutputStream(), true);
+BufferedReader in = new BufferedReader(new
+InputStreamReader(clientSocket.getInputStream()))
+) {
+// Receive two numbers from the client
+int num1 = Integer.parseInt(in.readLine());
+int num2 = Integer.parseInt(in.readLine());
+// Calculate the GCD
+int gcd = calculateGCD(num1, num2);
+// Send the GCD back to the client
+out.println(gcd);
+}
+}
+} catch (IOException e) {
+e.printStackTrace();
+}
+}
+private static int calculateGCD(int a, int b) {
+while (b != 0) {
+int temp = b;
+b = a % b;
+a = temp;
+}
+return Math.abs(a);
+}
+}
+Client Code:
+package Lab3;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+public class TCP_2_Client {
+public static void main(String[] args) {
+String serverAddress = "localhost";
+int portNumber = 5556;
+try (
+Socket socket = new Socket(serverAddress, portNumber);
+PrintWriter out = new PrintWriter(socket.getOutputStream(),
+true);
+BufferedReader in = new BufferedReader(new
+InputStreamReader(socket.getInputStream()));
+BufferedReader stdIn = new BufferedReader(new
+InputStreamReader(System.in))
+) {
+// Get two numbers from the user
+System.out.print("Enter the first number: ");
+int num1 = Integer.parseInt(stdIn.readLine());
+out.println(num1);
+System.out.print("Enter the second number: ");
+int num2 = Integer.parseInt(stdIn.readLine());
+out.println(num2);
+// Receive the GCD from the server and print it
+int gcd = Integer.parseInt(in.readLine());
+System.out.println("GCD of " + num1 + " and " + num2 + " is: " +
+gcd);
+} catch (IOException e) {
+e.printStackTrace();
+}
+}
+}
+—--------------------------------------------------------------Lab_4—---------------------------------------------
+1} C-S DNS Lookup
+Sever
+package Lab4;
+import java.io.*;
+import java.net.*;
+import java.util.Hashtable;
+public class DNS_Server {
+private static Hashtable<String, String> dnsTable = new Hashtable<>();
+private static Hashtable<String, Integer> visitCount = new Hashtable<>();
+public static void main(String[] args) {
+int port = 8086;
+try (ServerSocket serverSocket = new ServerSocket(port)) {
+System.out.println("DNS Server is listening on port " + port);
+while (true) {
+Socket clientSocket = serverSocket.accept();
+handleClient(clientSocket);
+}
+} catch (IOException e) {
+e.printStackTrace();
+}
+}
+private static void handleClient(Socket clientSocket) {
+try (
+BufferedReader in = new BufferedReader(new
+InputStreamReader(clientSocket.getInputStream()));
+PrintWriter out = new
+PrintWriter(clientSocket.getOutputStream(), true)
+) {
+String clientRequest = in.readLine();
+System.out.println("Received request from client: " +
+clientRequest);
+// Check if the URL is present in the DNS table
+if (dnsTable.containsKey(clientRequest)) {
+String ipAddress = dnsTable.get(clientRequest);
+int count = visitCount.getOrDefault(clientRequest, 0) + 1;
+visitCount.put(clientRequest, count);
+out.println("IP Address: " + ipAddress + ", Visited Count: " +
+count);
+} else {
+// If the URL is not present, simulate DNS lookup and store in
+the table
+String ipAddress = simulateDNSLookup(clientRequest);
+dnsTable.put(clientRequest, ipAddress);
+visitCount.put(clientRequest, 1);
+out.println("IP Address: " + ipAddress + ", Visited Count:
+1");
+}
+clientSocket.close();
+} catch (IOException e) {
+e.printStackTrace();
+}
+}
+private static String simulateDNSLookup(String url) {
+return "192.168.1.1";
+}
+}
+Client:
+package Lab4;
+import java.io.*;
+import java.net.*;
+public class DNS_Client {
+public static void main(String[] args) {
+String serverAddress = "localhost";
+int serverPort = 8086;
+try (
+Socket socket = new Socket(serverAddress, serverPort);
+BufferedReader in = new BufferedReader(new
+InputStreamReader(socket.getInputStream()));
+PrintWriter out = new PrintWriter(socket.getOutputStream(),
+true);
+BufferedReader userInput = new BufferedReader(new
+InputStreamReader(System.in))
+) {
+System.out.print("Enter URL to lookup: ");
+String url = userInput.readLine();
+out.println(url);
+String response = in.readLine();
+System.out.println("Server Response: " + response);
+} catch (IOException e) {
+e.printStackTrace();
+}
+}
+}
+2}C-S Alphabet,Number,Symbol
+Server:
+package Lab4;
+import java.io.*;
+import java.net.*;
+public class DNS_Client {
+public static void main(String[] args) {
+String serverAddress = "localhost";
+int serverPort = 8086;
+try (
+Socket socket = new Socket(serverAddress, serverPort);
+BufferedReader in = new BufferedReader(new
+InputStreamReader(socket.getInputStream()));
+PrintWriter out = new PrintWriter(socket.getOutputStream(),
+true);
+BufferedReader userInput = new BufferedReader(new
+InputStreamReader(System.in))
+) {
+System.out.print("Enter URL to lookup: ");
+String url = userInput.readLine();
+out.println(url);
+String response = in.readLine();
+System.out.println("Server Response: " + response);
+} catch (IOException e) {
+e.printStackTrace();
+}
+}
+}
+Client:
+package Lab4;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+public class Alp_dig_Sym_Client {
+public static void main(String[] args) {
+try {
+Socket socket = new Socket("localhost", 8080);
+BufferedReader userInput = new BufferedReader(new
+InputStreamReader(System.in));
+BufferedReader in = new BufferedReader(new
+InputStreamReader(socket.getInputStream()));
+PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+System.out.print("Enter text: ");
+String text = userInput.readLine();
+out.println(text);
+String response = in.readLine();
+System.out.println("Server response: " + response);
+socket.close();
+} catch (Exception e) {
+e.printStackTrace();
+}
+}
+}
+3} C-S UDP Fibonacii
+Server:
+package Lab4;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+public class UDP_Server {
+private static final int PORT = 12345;
+public static void main(String[] args) {
+try {
+DatagramSocket socket = new DatagramSocket(PORT);
+System.out.println("Server is running...");
+while (true) {
+byte[] receiveBuffer = new byte[1024];
+DatagramPacket receivePacket = new
+DatagramPacket(receiveBuffer, receiveBuffer.length);
+socket.receive(receivePacket);
+String request = new String(receivePacket.getData(), 0,
+receivePacket.getLength());
+int n = Integer.parseInt(request);
+// Calculate the nth term of the Fibonacci series
+long nthTerm = calculateNthFibonacci(n);
+// Convert the result to bytes and send it back to the client
+byte[] sendBuffer = String.valueOf(nthTerm).getBytes();
+DatagramPacket sendPacket = new DatagramPacket(sendBuffer,
+sendBuffer.length,
+receivePacket.getAddress(), receivePacket.getPort());
+socket.send(sendPacket);
+}
+} catch (Exception e) {
+e.printStackTrace();
+}
+}
+private static long calculateNthFibonacci(int n) {
+if (n <= 0)
+return 0;
+else if (n == 1)
+return 1;
+else {
+long a = 0, b = 1;
+for (int i = 2; i <= n; i++) {
+long temp = b;
+b = a + b;
+a = temp;
+}
+return a;
+}
+}
+}
+Client:
+package Lab4;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.util.Scanner;
+public class UDP_Client {
+private static final String SERVER_ADDRESS = "localhost";
+private static final int PORT = 12345;
+public static void main(String[] args) {
+try (DatagramSocket socket = new DatagramSocket()) {
+InetAddress serverAddress =
+InetAddress.getByName(SERVER_ADDRESS);
+Scanner scanner = new Scanner(System.in);
+System.out.print("Enter the value of 'n' to get the nth term of
+the Fibonacci series: ");
+int n = scanner.nextInt();
+String request = String.valueOf(n);
+byte[] sendBuffer = request.getBytes();
+DatagramPacket sendPacket = new DatagramPacket(sendBuffer,
+sendBuffer.length, serverAddress, PORT);
+socket.send(sendPacket);
+// Receive the nth term of the Fibonacci series from the server
+byte[] receiveBuffer = new byte[1024];
+DatagramPacket receivePacket = new DatagramPacket(receiveBuffer,
+receiveBuffer.length);
+socket.receive(receivePacket);
+String response = new String(receivePacket.getData(), 0,
+receivePacket.getLength());
+System.out.println("The " + n + "th term of the Fibonacci series
+is: " + response);
+} catch (Exception e) {
+e.printStackTrace();
+}
+}
+}
+—--------------------------------------------------------------Lab_5—---------------------------------------------
+1} C-S Chat App (TCP)
+Server:
+package Lab5;
+import java.io.*;
+import java.util.*;
+import java.net.*;
+public class ChatAppServer {
+private static final int PORT = 12345;
+private static List<ClientHandler> clients = new ArrayList<>();
+public static void main(String[] args) {
+try {
+ServerSocket serverSocket = new ServerSocket(PORT);
+System.out.println("Server started on port " + PORT);
+while (true) {
+Socket clientSocket = serverSocket.accept();
+System.out.println("New client connected: " + clientSocket);
+ClientHandler clientHandler = new ClientHandler(clientSocket);
+clients.add(clientHandler);
+Thread thread = new Thread(clientHandler);
+thread.start();
+}
+} catch (IOException e) {
+e.printStackTrace();
+}
+}
+//listens messages from the client stores it in the server then brodcasts
+it to all the client
+private static class ClientHandler implements Runnable {
+private Socket clientSocket;
+private PrintWriter out;
+public ClientHandler(Socket socket) {
+this.clientSocket = socket;
+}
+@Override
+public void run() {
+try {
+//read messages from the client
+BufferedReader in = new BufferedReader(new
+InputStreamReader(clientSocket.getInputStream()));
+//send messages to the client
+out = new PrintWriter(clientSocket.getOutputStream(), true);
+String message;
+while ((message = in.readLine()) != null) {
+System.out.println("Received message: " + message);
+//sends messages to all the connected clients except for
+the sender
+broadcast(message , this);
+}
+} catch (IOException e) {
+e.printStackTrace();
+} finally {
+try {
+clientSocket.close();
+} catch (IOException e) {
+e.printStackTrace();
+}
+}
+}
+private void broadcast(String message , ClientHandler sender) {
+for (ClientHandler client : clients) {
+if(client != sender)
+client.sendMessage(message);
+}
+}
+private void sendMessage(String message) {
+out.println(message);
+}
+}
+}
+Client:
+package Lab5;
+import java.io.*;
+import java.net.*;
+public class ChatAppClient{
+private static final String SERVER_IP = "127.0.0.1"; // Change to server
+IP if necessary
+private static final int SERVER_PORT = 12345;
+public static void main(String[] args) {
+try {
+Socket socket = new Socket(SERVER_IP, SERVER_PORT);
+System.out.println("Connected to server");
+BufferedReader userInput = new BufferedReader(new
+InputStreamReader(System.in));
+BufferedReader serverInput = new BufferedReader(new
+InputStreamReader(socket.getInputStream()));
+PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+// Thread to receive messages from server
+Thread receiveThread = new Thread(() -> {
+try {
+String message;
+while ((message = serverInput.readLine()) != null) {
+System.out.println("Server : " + message);
+}
+} catch (IOException e) {
+e.printStackTrace();
+}
+});
+receiveThread.start();
+// Thread to send messages to server
+Thread sendThread = new Thread(() -> {
+try {
+String message;
+while ((message = userInput.readLine()) != null) {
+out.println(message);
+}
+} catch (IOException e) {
+e.printStackTrace();
+}
+});
+sendThread.start();
+// Wait for both threads to finish
+receiveThread.join();
+sendThread.join();
+} catch (IOException | InterruptedException e) {
+e.printStackTrace();
+}
+}
+}
+2} C-S Chat App (UDP)
+Server:
+package Lab_6;
+import java.net.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+public class ChatApp_UDP_Server {
+private static final int PORT = 9878;
+private static final int THREAD_POOL_SIZE = 10;
+private static int clientCounter = 1;
+public static synchronized int getClientCounter() {
+return clientCounter;
+}
+public static synchronized void incrementClientCounter() {
+clientCounter++;
+}
+public static void main(String[] args) {
+try {
+DatagramSocket socket = new DatagramSocket(PORT);
+System.out.println("Server is running on port " + PORT);
+ExecutorService executorService =
+Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+while (true) {
+byte[] buffer = new byte[1024];
+DatagramPacket receivePacket = new DatagramPacket(buffer,
+buffer.length);
+socket.receive(receivePacket);
+InetAddress clientAddress = receivePacket.getAddress();
+int clientPort = receivePacket.getPort();
+String message = new String(receivePacket.getData(), 0,
+receivePacket.getLength());
+executorService.execute(new ClientHandler(socket,
+clientAddress, clientPort, message));
+}
+} catch (Exception e) {
+e.printStackTrace();
+}
+}
+}
+class ClientHandler implements Runnable {
+private DatagramSocket socket;
+private InetAddress clientAddress;
+private int clientPort;
+private String message;
+public ClientHandler(DatagramSocket socket, InetAddress clientAddress, int
+clientPort, String message) {
+this.socket = socket;
+this.clientAddress = clientAddress;
+this.clientPort = clientPort;
+this.message = message;
+}
+@Override
+public void run() {
+try {
+int clientNumber;
+synchronized (ChatApp_UDP_Server.class) {
+clientNumber = ChatApp_UDP_Server.getClientCounter();
+ChatApp_UDP_Server.incrementClientCounter();
+}
+System.out.println("Received from client " + clientNumber + " - "
++ message);
+String[] parts = message.split(" ");
+if (parts.length == 3 && parts[0].equalsIgnoreCase("divide")) {
+try {
+int num1 = Integer.parseInt(parts[1]);
+int num2 = Integer.parseInt(parts[2]);
+int result = num1 / num2;
+String ackMessage = "Ackclient" + clientNumber;
+byte[] ackBuffer = ackMessage.getBytes();
+DatagramPacket ackPacket = new DatagramPacket(ackBuffer,
+ackBuffer.length, clientAddress, clientPort);
+socket.send(ackPacket);
+String resultMessage = String.valueOf(result);
+byte[] resultBuffer = resultMessage.getBytes();
+DatagramPacket resultPacket = new
+DatagramPacket(resultBuffer, resultBuffer.length, clientAddress, clientPort);
+socket.send(resultPacket);
+} catch (NumberFormatException e) {
+System.err.println("Invalid numbers received from the
+client");
+}
+} else {
+System.err.println("Invalid message format from the client");
+}
+} catch (Exception e) {
+e.printStackTrace();
+}
+}
+}
+Client:
+package Lab_6;
+import java.net.*;
+import java.util.Scanner;
+public class ChatApp_UDP_Client {
+private static final int PORT = 9878;
+public static void main(String[] args) {
+try {
+DatagramSocket socket = new DatagramSocket();
+InetAddress serverAddress = InetAddress.getByName("localhost");
+Scanner scanner = new Scanner(System.in);
+while (true) {
+System.out.print("Enter message or stop(to Stop): ");
+String userInput = scanner.nextLine();
+if (userInput.equalsIgnoreCase("stop")) {
+System.out.println("Client stopped.");
+break;
+}
+byte[] buffer = userInput.getBytes();
+DatagramPacket packet = new DatagramPacket(buffer,
+buffer.length, serverAddress, PORT);
+socket.send(packet);
+byte[] ackBuffer = new byte[1024];
+DatagramPacket ackPacket = new DatagramPacket(ackBuffer,
+ackBuffer.length);
+socket.receive(ackPacket);
+String acknowledgment = new String(ackPacket.getData(), 0,
+ackPacket.getLength());
+System.out.println("Received acknowledgment from server : " +
+acknowledgment);
+byte[] resultBuffer = new byte[1024];
+DatagramPacket resultPacket = new DatagramPacket(resultBuffer,
+resultBuffer.length);
+socket.receive(resultPacket);
+String result = new String(resultPacket.getData(), 0,
+resultPacket.getLength());
+System.out.println("Received result from server: " + result);
+}
+socket.close();
+scanner.close();
+} catch (Exception e) {
+e.printStackTrace();
+}
+}
+}
+—--------------------------------------------------------------Lab_6—---------------------------------------------
+1} Bit Scrambling
+package Lab_7;
+import java.util.Scanner;
+public class Bit_Scrambling {
+public static void main(String[] args) {
+Scanner scanner = new Scanner(System.in);
+// Input binary sequence with at least 8 consecutive 0's
+System.out.print("Enter binary sequence (at least 8 consecutive 0's):
+");
+String inputSequence = scanner.nextLine();
+scanner.close();
+// Encoding using Bipolar-AMI with Eight Zero Substitution
+String encodedBipolar8Zero = encodeBipolar8Zero(inputSequence);
+System.out.println("Bipolar-AMI with Eight Zero Substitution: " +
+encodedBipolar8Zero);
+}
+public static String encodeBipolar8Zero(String input) {
+StringBuilder result = new StringBuilder();
+boolean lastBitPositive = false;
+int consecutiveZeros = 0;
+for (char c : input.toCharArray()) {
+if (c == '1') {
+result.append(lastBitPositive ? "-" : "+");
+lastBitPositive = !lastBitPositive;
+consecutiveZeros = 0;
+}
+else if(c=='0')
+{
+consecutiveZeros++;
+if (consecutiveZeros == 8) {
+result.append(lastBitPositive ? "000+-0-+" :
+"000-+0+-");
+consecutiveZeros = 0;
+}
+else if(consecutiveZeros<8){
+result.append("0");
+}
+}
+}
+return result.toString();
+}
+}
+2}Convert Binary(NRZ,AMI,MANCHESTER)(.txt file)
+Code:
+package Lab_7;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+public class Convert_Binary {
+public static void main(String[] args) {
+String inputFile =
+"C:\\Users\\bit\\IdeaProjects\\Fstjava\\src\\Lab_7\\test.txt";
+String outputFile =
+"C:\\Users\\bit\\IdeaProjects\\Fstjava\\src\\Lab_7\\output.txt";
+try {
+BufferedReader reader = new BufferedReader(new
+InputStreamReader(new FileInputStream(inputFile), StandardCharsets.UTF_8));
+StringBuilder stringBuilder = new StringBuilder();
+String line;
+while ((line = reader.readLine()) != null) {
+stringBuilder.append(line);
+stringBuilder.append(System.lineSeparator());
+}
+reader.close();
+String text = stringBuilder.toString();
+StringBuilder binaryData = new StringBuilder();
+StringBuilder nrzL = new StringBuilder();
+StringBuilder nrzI = new StringBuilder();
+StringBuilder ami = new StringBuilder();
+StringBuilder manchester = new StringBuilder();
+StringBuilder diffManchester = new StringBuilder();
+for (char c : text.toCharArray()) {
+String binary = String.format("%8s",
+Integer.toBinaryString((int) c)).replace(' ', '0');
+binaryData.append(binary).append(" ");
+// NRZ-L encoding
+nrzL.append(binary.replace('0', '+').replace('1',
+'-')).append(" ");
+// NRZ-I encoding
+nrzI.append(nrzIEncode(binary)).append(" ");
+// AMI encoding
+ami.append(amiEncode(binary)).append(" ");
+// Manchester encoding
+//0 ->high to low
+//1 ->low to high
+manchester.append(manchesterEncode(binary)).append(" ");
+// Differential Manchester encoding
+//0 ->Transition
+//1 ->No transition
+diffManchester.append(diffManchesterEncode(binary)).append("
+");
+}
+BufferedWriter writer = new BufferedWriter(new
+OutputStreamWriter(new FileOutputStream(outputFile),
+StandardCharsets.UTF_8));
+writer.write("Binary: " + binaryData.toString() + "\n");
+writer.write("NRZ-L: " + nrzL.toString() + "\n");
+writer.write("NRZ-I: " + nrzI.toString() + "\n");
+writer.write("AMI: " + ami.toString() + "\n");
+writer.write("Manchester: " + manchester.toString() + "\n");
+writer.write("Differential Manchester: " +
+diffManchester.toString() + "\n");
+writer.close();
+System.out.println("Encoded data saved in " + outputFile);
+} catch (IOException e) {
+e.printStackTrace();
+}
+}
+private static String nrzIEncode(String binary) {
+StringBuilder result = new StringBuilder();
+char previousBit = '-';
+for (char bit : binary.toCharArray()) {
+if (bit == '1') {
+result.append(previousBit == '+' ? '-' : '+');
+} else {
+result.append(previousBit);
+}
+previousBit = result.charAt(result.length() - 1);
+}
+return result.toString();
+}
+private static String amiEncode(String binary) {
+StringBuilder result = new StringBuilder();
+boolean lastOne = false;
+for (char bit : binary.toCharArray()) {
+if (bit == '1') {
+if (lastOne==false) {
+result.append('+');
+lastOne = true;
+} else {
+result.append('-');
+lastOne = false;
+}
+} else {
+result.append('0');
+}
+}
+return result.toString();
+}
+private static String manchesterEncode(String binary) {
+StringBuilder result = new StringBuilder();
+for (char bit : binary.toCharArray()) {
+result.append(bit == '1' ? "-+" : "+-");
+}
+return result.toString();
+}
+private static String diffManchesterEncode(String binary) {
+StringBuilder result = new StringBuilder();
+char lastBit = '+';
+for (char bit : binary.toCharArray()) {
+if (bit == '0') {
+result.append(lastBit == '+' ? "+-" : "-+");
+lastBit = result.charAt(result.length() - 1);
+} else {
+result.append(lastBit).append(lastBit == '+' ? '-' : '+');
+}
+}
+return result.toString();
+}
+}
+—--------------------------------------------------------------Lab_7—---------------------------------------------
+1} PARITY CHECKING
+CODE:
+package Lab_8;
+import java.util.Scanner;
+public class parity_checking {
+public static String addParityBit(String data) {
+int numSetBits = countSetBits(data);
+return (numSetBits % 2 == 0 ? '1' : '0') + data;
+}
+public static boolean checkParity(String data) {
+int numSetBits = countSetBits(data);
+return numSetBits % 2 == 1;
+}
+private static int countSetBits(String data) {
+int numSetBits = 0;
+for (char bit : data.toCharArray()) {
+if (bit == '1') {
+numSetBits++;
+}
+}
+return numSetBits;
+}
+public static void main(String[] args) {
+Scanner scanner = new Scanner(System.in);
+System.out.print("Enter the original data (binary): ");
+String originalData = scanner.nextLine();
+String transmittedData = addParityBit(originalData);
+int errorPosition = (int) (Math.random() * transmittedData.length());
+StringBuilder transmittedDataWithError = new
+StringBuilder(transmittedData);
+transmittedDataWithError.setCharAt(errorPosition,
+transmittedData.charAt(errorPosition) == '0' ? '1' : '0');
+boolean errorDetected =
+checkParity(transmittedDataWithError.toString());
+if (Math.random() < 0.5) {
+errorDetected = !errorDetected;
+}
+System.out.println("Original Data: " + originalData);
+System.out.println("Transmitted Data with Parity at the Front: " +
+transmittedData);
+System.out.println("Transmitted Data with Error: " +
+transmittedDataWithError);
+System.out.println("Error Detected: " + errorDetected);
+scanner.close();
+}
+}
+2}PARITY CHECKING 2D MATRIX
+CODE:
+import java.util.Scanner;
+public class ParityChecking2D {
+public static String[][] addParityBit(String[][] data) {
+String[][] dataWithParity = new String[data.length][data[0].length +
+1];
+// Calculate row parity and add parity bit at the beginning of each
+row
+for (int i = 0; i < data.length; i++) {
+String row = String.join("", data[i]);
+int numSetBits = countSetBits(row);
+char parityBit = (numSetBits % 2 == 0) ? '1' : '0';
+dataWithParity[i][0] = String.valueOf(parityBit);
+for (int j = 0; j < data[i].length; j++) {
+dataWithParity[i][j + 1] = data[i][j];
+}
+}
+// Calculate column parity and add parity bit at the end of each row
+for (int i = 0; i < dataWithParity.length; i++) {
+StringBuilder rowData = new StringBuilder();
+for (int j = 1; j < dataWithParity[i].length; j++) {
+rowData.append(dataWithParity[i][j]);
+}
+int numSetBits = countSetBits(rowData.toString());
+char parityBit = (numSetBits % 2 == 0) ? '1' : '0';
+dataWithParity[i][dataWithParity[i].length - 1] =
+String.valueOf(parityBit);
+}
+return dataWithParity;
+}
+public static boolean checkParity(String[][] dataWithParity) {
+int totalSetBits = 0;
+// Check row parity
+for (String[] row : dataWithParity) {
+String rowData = String.join("", row);
+int numSetBits = countSetBits(rowData);
+if (numSetBits % 2 != 1) {
+return false;
+}
+totalSetBits += numSetBits;
+}
+// Check column parity
+for (int j = 1; j < dataWithParity[0].length; j++) {
+StringBuilder colData = new StringBuilder();
+for (String[] row : dataWithParity) {
+colData.append(row[j]);
+}
+int numSetBits = countSetBits(colData.toString());
+if (numSetBits % 2 != 1) {
+return false;
+}
+totalSetBits += numSetBits;
+}
+// Check total array parity
+return totalSetBits % 2 == 1;
+}
+private static int countSetBits(String data) {
+int numSetBits = 0;
+for (char bit : data.toCharArray()) {
+if (bit == '1') {
+numSetBits++;
+}
+}
+return numSetBits;
+}
+public static void main(String[] args) {
+Scanner scanner = new Scanner(System.in);
+// Take user input for the size of the 2D array
+System.out.print("Enter the number of rows: ");
+int rows = scanner.nextInt();
+System.out.print("Enter the number of columns: ");
+int cols = scanner.nextInt();
+// Create a 2D array to store bits
+String[][] originalData = new String[rows][cols];
+// Take user input for the 2D array of bits
+System.out.println("Enter the elements of the array (0 or 1):");
+for (int i = 0; i < rows; i++) {
+for (int j = 0; j < cols; j++) {
+originalData[i][j] = scanner.next();
+}
+}
+// Add parity bit for each row and column
+String[][] transmittedData = addParityBit(originalData);
+System.out.println("Original Data:");
+print2DArray(originalData);
+System.out.println("Transmitted Data with Parity at the Front and
+End:");
+print2DArray(transmittedData);
+// Check parity for the whole array
+boolean parityCorrect = checkParity(transmittedData);
+System.out.println("Parity Check Result: " + (parityCorrect ? "No
+errors detected" : "Error detected"));
+scanner.close();
+}
+// Utility method to print a 2D array
+public static void print2DArray(String[][] arr) {
+for (String[] row : arr) {
+for (String bit : row) {
+System.out.print(bit + " ");
+}
+System.out.println();
+}
+}
+}
+// 1 0 1 0 0 0 0
+// 1 1 0 0 0 1 1
+—--------------------------------------------------------------Lab_8—---------------------------------------------
+1} C-S FOR SAVING A TEXT FILE GIVEN BY CLIENT TO DISK
+SERVER:
+package Lab_9;
+import java.io.*;
+import java.net.*;
+public class File_Server {
+public static void main(String[] args) {
+int port = 9999;
+ServerSocket serverSocket = null;
+// Specify the directory where you want to save the file
+String saveDirectory = "E:\\Tushar\\";
+try {
+serverSocket = new ServerSocket(port);
+System.out.println("Server is listening on port " + port);
+Socket clientSocket = serverSocket.accept();
+System.out.println("Client connected: " +
+clientSocket.getInetAddress().getHostAddress());
+DataInputStream dis = new
+DataInputStream(clientSocket.getInputStream());
+String fileName = dis.readUTF();
+long fileSize = dis.readLong();
+// Modify the file path to save in the specified directory
+FileOutputStream fos = new FileOutputStream(saveDirectory +
+fileName);
+byte[] buffer = new byte[4096];
+int bytesRead = 0;
+long totalBytesRead = 0;
+while (totalBytesRead < fileSize && (bytesRead = dis.read(buffer,
+0, (int)Math.min(buffer.length, fileSize - totalBytesRead))) != -1) {
+fos.write(buffer, 0, bytesRead);
+totalBytesRead += bytesRead;
+}
+System.out.println("File saved to: " + saveDirectory + fileName);
+fos.close();
+dis.close();
+clientSocket.close();
+} catch (IOException e) {
+e.printStackTrace();
+} finally {
+if (serverSocket != null) {
+try {
+serverSocket.close();
+} catch (IOException e) {
+e.printStackTrace();
+}
+}
+}
+}
+}
+CLIENT:
+package Lab_9;
+import java.io.*;
+import java.net.*;
+public class File_Client {
+public static void main(String[] args) {
+String serverAddress = "127.0.0.1";
+int serverPort = 9999;
+String filePath =
+"C:\\Users\\bit\\IdeaProjects\\Fstjava\\src\\Lab_9\\pointer.txt";
+Socket socket = null;
+try {
+socket = new Socket(serverAddress, serverPort);
+System.out.println("PortNumber:" + serverPort);
+File file = new File(filePath);
+long fileSize = file.length();
+DataOutputStream dos = new
+DataOutputStream(socket.getOutputStream());
+dos.writeUTF(file.getName());
+dos.writeLong(fileSize);
+FileInputStream fis = new FileInputStream(file);
+byte[] buffer = new byte[4096];
+int bytesRead = 0;
+long totalBytesRead = 0;
+while ((bytesRead = fis.read(buffer)) != -1) {
+dos.write(buffer, 0, bytesRead);
+totalBytesRead += bytesRead;
+}
+System.out.println("File sent: " + filePath);
+fis.close();
+dos.close();
+socket.close();
+} catch (IOException e) {
+e.printStackTrace();
+}
+}
+}
+2}GET SOURCE CODE USING UDP
+SERVER:
+package Lab9;
+import java.io.*;
+import java.net.*;
+public class UDPServer {
+public static void main(String[] args) {
+DatagramSocket socket = null;
+try {
+socket = new DatagramSocket(12345);
+byte[] buffer = new byte[1024];
+//
+while (true) {
+DatagramPacket requestPacket = new DatagramPacket(buffer,
+buffer.length);
+socket.receive(requestPacket);
+InetAddress clientAddress = requestPacket.getAddress();
+int clientPort = requestPacket.getPort();
+String request = new String(requestPacket.getData(), 0,
+requestPacket.getLength());
+System.out.println("Received request:\n" + request);
+String[] parts = request.split(" ");
+String url = parts[1];
+URL website = new URL(url);
+HttpURLConnection connection = (HttpURLConnection)
+website.openConnection();
+connection.setRequestProperty("User-Agent", "Mozilla/5.0");
+int responseCode = connection.getResponseCode();
+if (responseCode == HttpURLConnection.HTTP_OK) {
+BufferedReader in = new BufferedReader(new
+InputStreamReader(connection.getInputStream()));
+StringBuilder response = new StringBuilder();
+String inputLine;
+while ((inputLine = in.readLine()) != null) {
+response.append(inputLine);
+}
+in.close();
+byte[] responseData = response.toString().getBytes();
+int maxPacketSize = 1024;
+int numPackets = (int) Math.ceil((double)
+responseData.length / maxPacketSize);
+for (int i = 0; i < numPackets; i++) {
+int offset = i * maxPacketSize;
+int length = Math.min(maxPacketSize,
+responseData.length - offset);
+DatagramPacket responsePacket = new
+DatagramPacket(responseData, offset, length, clientAddress, clientPort);
+socket.send(responsePacket);
+}
+} else {
+String errorMessage = "HTTP Error " + responseCode;
+byte[] errorData = errorMessage.getBytes();
+DatagramPacket errorPacket = new DatagramPacket(errorData,
+errorData.length, clientAddress, clientPort);
+socket.send(errorPacket);
+}
+}
+} catch (Exception e) {
+e.printStackTrace();
+} finally {
+if (socket != null) {
+socket.close();
+}
+}
+}
+}
+CLIENT:
+package Lab9;
+import java.net.*;
+import java.util.Scanner;
+public class UDPClient2 {
+public static void main(String[] args) {
+DatagramSocket socket = null;
+Scanner scanner = new Scanner(System.in);
+try {
+socket = new DatagramSocket();
+InetAddress serverAddress = InetAddress.getByName("localhost");
+int serverPort = 12345;
+System.out.print("Enter the webpage URL : ");
+String url = scanner.nextLine();
+String request = "GET " + url + " HTTP/1.1\r\nHost: " +
+serverAddress.getHostAddress() + "\r\nConnection: close\r\n\r\n";
+byte[] requestData = request.getBytes();
+DatagramPacket requestPacket = new DatagramPacket(requestData,
+requestData.length, serverAddress, serverPort);
+socket.send(requestPacket);
+StringBuilder responseBuilder = new StringBuilder();
+while (true) {
+byte[] responseData = new byte[1024];
+DatagramPacket responsePacket = new
+DatagramPacket(responseData, responseData.length);
+socket.receive(responsePacket);
+String response = new String(responsePacket.getData(), 0,
+responsePacket.getLength());
+if (response.startsWith("HTTP Error")) {
+System.out.println("Server returned an error: " +
+response);
+break;
+}
+responseBuilder.append(response);
+if (responsePacket.getLength() < 1024) {
+break;
+}
+}
+System.out.println("HTML Content:\n" +
+responseBuilder.toString());
+} catch (Exception e) {
+e.printStackTrace();
+} finally {
+if (socket != null) {
+socket.close();
+}
+scanner.close();
+}
+}
+}
+—--------------------------------------END—--------------------------------
